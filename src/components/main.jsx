@@ -134,7 +134,7 @@ const Main = () => {
   return (
     <div className={classes.root}>
       <div style={{ padding: 50 }}>
-        <h1>Jock Sniffer</h1>
+        <h1>NFTs Sniper</h1>
         <form noValidate autoComplete="off">
           <div>
             <TextField
