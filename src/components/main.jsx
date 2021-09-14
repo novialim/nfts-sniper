@@ -28,8 +28,8 @@ const Main = () => {
     "https://go.fission.app/json/REPLACE/index.json"
   );
   const [replaceToken, setReplaceToken] = useState("REPLACE");
-  const [minToken, setMinToken] = useState(0);
-  const [maxToken, setMaxToken] = useState(80);
+  const [minToken, setMinToken] = useState(1);
+  const [maxToken, setMaxToken] = useState(50);
   //////// TEMP DATA
 
   const [nftData, setnftData] = useState([]);
@@ -125,7 +125,7 @@ const Main = () => {
       return keyObjArray;
     };
 
-    hasResults && console.log(getResults());
+    // hasResults && console.log(getResults());
     hasResults && setFinalTraitsTable(getResults());
     /// NOW YOU HAVE AN ARRAY OF ATTRIBUTES, HOW DO YOU DISPLAY IT DYNAMICALLY?????? ///////
   }, [hasResults, nftData]);
@@ -208,7 +208,13 @@ const Main = () => {
             index={apiIndex}
           />
           {finalTraitsTable?.map((arr) => {
-            return <Table tableName={arr[0]} data={arr[1]} />;
+            return (
+              <Table
+                tableName={arr[0]}
+                data={arr[1]}
+                maxCount={maxToken ? maxToken - minToken + 1 : 0}
+              />
+            );
           })}
         </div>
         <div style={{ marginTop: 20 }}>
