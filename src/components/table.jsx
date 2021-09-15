@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 
-export default function Table({ tableName, data, maxCount }) {
+export default function Table({
+  tableName,
+  data,
+  maxCount,
+  retrieveSelectedNFTs,
+}) {
   const [sortModel, setSortModel] = useState([
     {
       field: "percentage",
@@ -11,13 +16,18 @@ export default function Table({ tableName, data, maxCount }) {
 
   const numOfKeys = Object.keys(data).length;
 
-  useEffect(() => {}, [data]);
+  const getSelectedNFTs = (ids) => {
+    const selectedRowData = attrRows.filter((row) => ids.includes(row.id));
+    retrieveSelectedNFTs(selectedRowData);
+  };
+
   const attrRows = [];
 
   // create row table
   Object.keys(data).map((key) => {
     attrRows.push({
       id: attrRows.length + 1,
+      name: tableName,
       values: key,
       amount: data[key],
       percentage: ((data[key] / maxCount) * 100).toFixed(2),
@@ -36,10 +46,10 @@ export default function Table({ tableName, data, maxCount }) {
         padding: 10,
       }}
     >
+      {/* tableName is also traits key */}
       <h2>{tableName}</h2>
-
       <div style={{ display: "flex", flexDirection: "column" }}>
-        <div style={{ height: 400, width: "100%" }}>
+        <div style={{ height: 370, width: "100%" }}>
           <DataGrid
             sortingOrder={["desc", "asc"]}
             sortModel={sortModel}
@@ -50,6 +60,9 @@ export default function Table({ tableName, data, maxCount }) {
             checkboxSelection
             disableSelectionOnClick
             disableColumnMenu
+            onSelectionModelChange={(ids) => {
+              getSelectedNFTs(ids);
+            }}
           />
         </div>
       </div>
@@ -67,14 +80,14 @@ export const COLUMNS = [
   {
     field: "amount",
     headerName: "Amt",
-    width: 100,
+    width: 90,
     editable: false,
   },
   {
     field: "percentage",
     headerName: "%",
     type: "number",
-    width: 100,
+    width: 80,
     editable: false,
   },
   {

@@ -4,11 +4,14 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import TraitsTable from "./traitsTable";
 import Table from "./table";
+import ImageTable from "./ImageTable";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
+    maxWidth: "100%",
+    padding: 20,
   },
   textField: {
     marginLeft: theme.spacing(1),
@@ -29,7 +32,7 @@ const Main = () => {
   );
   const [replaceToken, setReplaceToken] = useState("REPLACE");
   const [minToken, setMinToken] = useState(1);
-  const [maxToken, setMaxToken] = useState(50);
+  const [maxToken, setMaxToken] = useState(20);
   //////// TEMP DATA
 
   const [nftData, setnftData] = useState([]);
@@ -39,6 +42,11 @@ const Main = () => {
 
   const [hasResults, setHasResults] = useState(false);
   const [finalTraitsTable, setFinalTraitsTable] = useState([]);
+
+  const [selectedNFT, setSelectNFT] = useState([]);
+  const [hasSelectedNFT, setHasSelectedNFT] = useState(false);
+
+  const [finalSelectedNFT, setFinalSelectedNFT] = useState([]);
 
   let traitsArr = [];
 
@@ -82,6 +90,46 @@ const Main = () => {
     });
 
     return traitsArr;
+  };
+
+  const retrieveSelectedNFTs = (data) => {
+    console.log("CLICK", data);
+    setSelectNFT(data);
+    if (data.length > 0) setHasSelectedNFT(true);
+    else setHasSelectedNFT(false);
+  };
+
+  const findNested = (objArr, key, arr) => {
+    // console.log("key:::: ", key);
+    // console.log("array:::: ", arr);
+
+    let finalSelectedNRTArr = [];
+
+    arr.map((ar) => {
+      // console.log("whats in ar", ar);
+      objArr.map((or) => {
+        or[key].map((trait) => {
+          if (
+            Object.values(trait)[0].toLowerCase() === ar.name &&
+            Object.values(trait)[1] === ar.values
+          ) {
+            console.log(or);
+            finalSelectedNRTArr.push(or);
+          }
+        });
+      });
+    });
+
+    return finalSelectedNRTArr;
+  };
+
+  const retrieveNFTsData = () => {
+    let foundNFTArr = [];
+    foundNFTArr = findNested(nftData, attributeKey, selectedNFT);
+    console.log(foundNFTArr.length);
+    if (foundNFTArr.length > 0) {
+      return foundNFTArr;
+    }
   };
 
   useEffect(() => {
@@ -133,7 +181,7 @@ const Main = () => {
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      <div style={{ padding: 50 }}>
+      <div>
         <h1>NFTs Sniper</h1>
         <form noValidate autoComplete="off">
           <div>
@@ -194,6 +242,12 @@ const Main = () => {
             </Button>
           </div>
         </form>
+        <div style={{ margin: "auto", textAlign: "center", width: "100%" }}>
+          <h2>
+            Getting NFT {apiIndex} out of{" "}
+            {maxToken ? maxToken - minToken + 1 : 0}
+          </h2>
+        </div>
         <div
           style={{
             marginTop: 20,
@@ -207,28 +261,19 @@ const Main = () => {
             maxCount={maxToken ? maxToken - minToken + 1 : 0}
             index={apiIndex}
           />
-          {finalTraitsTable?.map((arr) => {
+          {finalTraitsTable?.map((arr, index) => {
             return (
               <Table
+                key={index}
                 tableName={arr[0]}
                 data={arr[1]}
                 maxCount={maxToken ? maxToken - minToken + 1 : 0}
+                retrieveSelectedNFTs={retrieveSelectedNFTs}
               />
             );
           })}
         </div>
-        <div style={{ marginTop: 20 }}>
-          {nftData.map((nft, index) => {
-            return (
-              <img
-                key={index}
-                src={nft.image}
-                alt={nft.description}
-                width="100"
-              />
-            );
-          })}
-        </div>
+        {hasSelectedNFT && <ImageTable nftData={retrieveNFTsData()} />}
       </div>
     </div>
   );
